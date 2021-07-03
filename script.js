@@ -77,6 +77,20 @@ createMouse();
 
 let direction = 'right';
 
+let steps = false;
+
+let input = document.createElement('input');
+document.body.appendChild(input);
+input.style.cssText = `
+margin: auto;
+margin-top: 20px;
+font-size: 30px;
+display: block;
+`;
+
+let score = 0;
+input.value = `У вас ${score} очков!`;
+
 function move() {
     let snakeCoordinates = [catSnake[0].getAttribute('positionX'), catSnake[0].getAttribute('positionY')];
     catSnake[0].classList.remove('catSnakeHead');
@@ -109,12 +123,36 @@ function move() {
         }
     }
 
+    if (catSnake[0].getAttribute('positionX') == mouse.getAttribute('positionX') 
+    && catSnake[0].getAttribute('positionY') == mouse.getAttribute('positionY')) {
+        mouse.classList.remove('food');
+        let a = catSnake[catSnake.length-1].getAttribute('positionX');
+        let b = catSnake[catSnake.length-1].getAttribute('positionY');
+        catSnake.push(document.querySelector('[positionX = "'+ a + '"][positionY = "'+ b + '"]'))
+        createMouse();
+        score++;
+        input.value = `Счёт: ${score}!`;
+    }
     
+    if(catSnake[0].classList.contains('catSnakeBody')) {
+        clearInterval(interval);
+        catSnake[0].style.background = 'url(images/sadCat.jpg) center no-repeat';
+        catSnake[0].style.backgroundSize = 'cover';
+        
+        setTimeout(() => {
+            alert(`Гейм Овер :( Счёт: ${score}.`)
+        }, 200);
+     
+        
+        
+    }
+
     catSnake[0].classList.add('catSnakeHead');
 
     for (let i = 1; i < catSnake.length; i++) {
         catSnake[i].classList.add('catSnakeBody');
     }
+    steps = true;
 }
 
 let interval = setInterval (move, 300);
@@ -122,13 +160,19 @@ let interval = setInterval (move, 300);
 // keyCode - устаревший метод, но аналога я не нашёл, так что оставим его :)
 
 window.addEventListener('keydown', function(e){
-    if (e.keyCode == 37 && direction != 'right') {
-        direction = 'left';
-    } else if (e.keyCode == 38 && direction != 'down') {
-        direction = 'up';
-    } else if (e.keyCode == 39 && direction != 'left') {
-        direction = 'right';
-    } else if (e.keyCode == 40 && direction != 'up') {
-        direction = 'down';
+    if (steps == true) {
+        if (e.keyCode == 37 && direction != 'right') {
+            direction = 'left';
+            steps = false;
+        } else if (e.keyCode == 38 && direction != 'down') {
+            direction = 'up';
+            steps = false;
+        } else if (e.keyCode == 39 && direction != 'left') {
+            direction = 'right';
+            steps = false;
+        } else if (e.keyCode == 40 && direction != 'up') {
+            direction = 'down';
+            steps = false;
+        }
     }
 })
